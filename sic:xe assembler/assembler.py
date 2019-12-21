@@ -373,9 +373,8 @@ def output(OP):
 
     f.close()
 print('Please input data name-->',end='')
-data=inputData('input.txt')
+data=inputData(input())
 LOCcount=pass1(data)
-print(LOCcount)
 sym={}
 sym=SYMTAB(data,sym)
 sort(data)
@@ -383,4 +382,3 @@ sort(data)
 OP=pass2(data,sym,LOCcount)
 printAll(data)
 output(OP)
-print(OP)
