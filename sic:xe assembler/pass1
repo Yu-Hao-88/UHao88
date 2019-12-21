@@ -1,0 +1,1 @@
+{'COPY': '0000', 'FIRST': '0000', 'CLOOP': '0006', 'ENDFIL': '001a', 'EOF': '002d', 'RETADR': '002f', 'LENGTH': '0032', 'BUFFER': '0035', 'RDREC': '1035', 'RLOOP': '103f', 'EXIT': '1055', 'INPUT': '105b', 'WRREC': '105d', 'WLOOP': '1062', 'OUTPUT': '1076'}
