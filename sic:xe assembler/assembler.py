@@ -185,7 +185,7 @@ def nextLoc(i,data): #找下一個loc
         count=2
     nextLOC=data[data.index(i,0,len(data))+count][0]
     return nextLOC
-register={
+register={          #register編號
     'A':'0',
     'X':'1',
     'L':'2',
@@ -196,7 +196,22 @@ register={
     'PC':'8',
     'SW':'9'
 }
-def pass2(data,sym):
+def appendToTex(tex,lastAddress,temp):
+    length=lastAddress-hex_to_dec(temp[1])
+    temp.insert(2,dec_to_hex(length).zfill(2))
+    tex.append(listToString(temp))
+    return tex
+def tempRefresh(temp,i):
+    temp.clear()
+    temp.append('T')
+    temp.append(i[0].zfill(6))
+    temp.append(i[4])
+def pass2(data,sym,LOCcount):
+    OP=[] #objectprogram
+    tex=[]
+    mod=[]
+    bit=0
+    temp=[]
     for i in data:
         try:
             n=1
@@ -207,9 +222,31 @@ def pass2(data,sym):
             e=0
             code=i[2]
             target=''
-            if code=='START' or code=='BASE' or code=='RESW' or code=='RESB' or code=='END':
+            if code=='START':
+                head='H'+i[1]  #for H record
+                if len(i[1])<6:
+                    for e in range(len(i[1]),6):
+                        head+=' '
+                head+=i[0].zfill(6)
+                head+=hexi(LOCcount).zfill(6)
+                OP.append(head)
                 continue
-
+            if code=='END':
+                tex=appendToTex(tex,int(LOCcount),temp)
+                continue
+            if code=='BASE':
+                continue
+            if (code=='RESW' or code=='RESB' )and bit!=0:
+                tex=appendToTex(tex,hex_to_dec(i[0]),temp)
+                temp.clear()
+                bit=0
+                continue
+            if code=='RESW' or code=='RESB' :
+                continue
+            if bit==0:
+                temp.append('T')
+                temp.append(i[0].zfill(6))
+                bit=9
             if len(i)==4:    
                 target=i[3]
             else:
@@ -223,16 +260,37 @@ def pass2(data,sym):
                     objectcode=target[2]+target[3]
                 #print(objectcode)
                 i.append(objectcode)
+                if bit+len(i[4])>69 :
+                    tex=appendToTex(tex,hex_to_dec(i[0]),temp)
+                    tempRefresh(temp,i)
+                    bit=9+len(i[4])
+                else:
+                    temp.append(i[4])
+                    bit+=len(i[4])
                 continue
             if code=='CLEAR' or code=='TIXR':
                 objectcode=opcode[code]+register[target]+'0'
                 #print(objectcode)
                 i.append(objectcode)
+                if bit+len(i[4])>69 :
+                    tex=appendToTex(tex,hex_to_dec(i[0]),temp)
+                    tempRefresh(temp,i)
+                    bit=9+len(i[4])
+                else:
+                    temp.append(i[4])
+                    bit+=len(i[4])
                 continue
             if code=='COMPR':
                 objectcode=opcode[code]+register[target[0]]+register[target[2]]
                 #print(objectcode)
                 i.append(objectcode)
+                if bit+len(i[4])>69 :
+                    tex=appendToTex(tex,hex_to_dec(i[0]),temp[1])
+                    tempRefresh(temp,i)
+                    bit=9+len(i[4])
+                else:
+                    temp.append(i[4])
+                    bit+=len(i[4])
                 continue
             try:
                 if ',X' in target:
@@ -280,87 +338,38 @@ def pass2(data,sym):
                     disp=hexi(int(disp))
             #print(objectCode(code,n,l,x,b,p,e,disp))
             i.append(objectCode(code,n,l,x,b,p,e,disp))
+            if i[2][0]=='+' and i[3][0]!='#': #for M record
+                tmp=''
+                tmp+='M'
+                tmp+=hexi(hex_to_dec(i[0])+1).zfill(6)
+                tmp+=dec_to_hex(2*(hex_to_dec(nextLoc(i,data))-hex_to_dec(i[0])-1))
+                mod.append(tmp)
+
+            if bit+len(i[4])>69 :
+                tex=appendToTex(tex,hex_to_dec(i[0]),temp)
+                tempRefresh(temp,i)
+                bit=9+len(i[4])
+            else:
+                temp.append(i[4])
+                bit+=len(i[4])
         except:
             print('error')
-
-def header(data,count):
-    head='H'+data[0][1]
-    if len(data[0][1])<6:
-        for i in range(len(data[0][1]),6):
-            head+=' '
-    head+=data[0][0].zfill(6)
-    head+=hexi(count).zfill(6)
-    return [head]
+    for i in tex:
+        OP.append(i)
+    for i in mod:
+        OP.append(i)
+    OP.append('E'+data[0][0].zfill(6)) #for E record
+    return OP
 def listToString(list):
     Str=''
     for i in list:
         Str+=i
     return Str
-def text(data,count):
-    tex=[]
-    bit=0
-    temp=[]
-    for i in data:
-        code=i[2]
-        if code=='START' or code=='BASE' :
-            continue
-        if code=='END':
-            length=int(count)-hex_to_dec(temp[1])
-            temp.insert(2,dec_to_hex(length))
-            tex.append(listToString(temp))
-            break
-        if (code=='RESW' or code=='RESB' )and bit!=0:
-            length=hex_to_dec(i[0])-hex_to_dec(temp[1])
-            temp.insert(2,dec_to_hex(length))
-            tex.append(listToString(temp))
-            temp.clear()
-            bit=0
-            continue
-        if code=='RESW' or code=='RESB' :
-            continue
-        if bit==0:
-            temp.append('T')
-            temp.append(i[0].zfill(6))
-            bit=9
-        if bit+len(i[4])>69 :
-            length=hex_to_dec(i[0])-hex_to_dec(temp[1])
-            temp.insert(2,dec_to_hex(length))
-            tex.append(listToString(temp))
-            temp.clear()
-            temp.append('T')
-            temp.append(i[0].zfill(6))
-            temp.append(i[4])
-            bit=9+len(i[4])
-        else:
-            temp.append(i[4])
-            bit+=len(i[4])
-    return tex
-def mod(data):
-    m=[]
-    for i in data:
-        if i[2][0]=='+' and i[3][0]!='#':
-            tmp=''
-            tmp+='M'
-            tmp+=hexi(hex_to_dec(i[0])+1).zfill(6)
-            tmp+=dec_to_hex(2*(hex_to_dec(nextLoc(i,data))-hex_to_dec(i[0])-1))
-            m.append(tmp)
-    return m
-
-def objectProgram(data,count):
-    OP=[]
-    OP.append(header(data,count))
-    OP.append(text(data,count))
-    OP.append(mod(data))
-    OP.append(['E'+data[0][0].zfill(6)])
-    print(OP)
-    return OP
 def output(OP):
     f = open("output.txt", "w")
 
     for i in OP:
-        for e in i:
-    # 以 print 寫入資料
-            print(e, file = f)
+        print(i, file = f)
 
     f.close()
 print('Please input data name-->',end='')
@@ -371,7 +380,7 @@ sym={}
 sym=SYMTAB(data,sym)
 sort(data)
 #printAll(data)
-pass2(data,sym)
-#printAll(data)
-OP=objectProgram(data,LOCcount)
+OP=pass2(data,sym,LOCcount)
+printAll(data)
 output(OP)
+print(OP)
