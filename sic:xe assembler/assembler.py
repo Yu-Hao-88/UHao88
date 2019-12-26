@@ -220,6 +220,7 @@ def pass2(data,sym,LOCcount):
             b=0
             p=1
             e=0
+            nu=0
             code=i[2]
             target=''
             if code=='START':
@@ -300,6 +301,7 @@ def pass2(data,sym,LOCcount):
                     target=sym[target[1:]]
                     n=0
                     l=1
+                    nu=0
                 elif target[0]=='@':
                     target=sym[target[1:]]
                     n=1
@@ -323,6 +325,7 @@ def pass2(data,sym,LOCcount):
                     target=target[1:]
                     n=0
                     l=1
+                    nu=1
 
                 else: #n=1 l=1
                     target=target
@@ -335,14 +338,18 @@ def pass2(data,sym,LOCcount):
                 b=0
                 disp=target
                 if n==0 and l==1:
-                    disp=hexi(int(disp))
+                    if nu==1: #by notlabel
+                        disp=hexi(int(disp))
+                    else: #by label
+                        disp=target.zfill(5)
             #print(objectCode(code,n,l,x,b,p,e,disp))
             i.append(objectCode(code,n,l,x,b,p,e,disp))
-            if i[2][0]=='+' and i[3][0]!='#': #for M record
+            if i[2][0]=='+' and nu==0:#i[3][0]!='#': #for M record
                 tmp=''
                 tmp+='M'
                 tmp+=hexi(hex_to_dec(i[0])+1).zfill(6)
-                tmp+=dec_to_hex(2*(hex_to_dec(nextLoc(i,data))-hex_to_dec(i[0])-1))
+                #tmp+=dec_to_hex(2*(hex_to_dec(nextLoc(i,data))-hex_to_dec(i[0])-1)).zfill(2)
+                tmp+='05'
                 mod.append(tmp)
 
             if bit+len(i[4])>69 :
@@ -369,6 +376,7 @@ def output(OP):
     f = open("output.txt", "w")
 
     for i in OP:
+        print(i)
         print(i, file = f)
 
     f.close()
