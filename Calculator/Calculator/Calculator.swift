@@ -11,7 +11,8 @@ import Foundation
 class Calculator {
     var numberOnScreen :Double      //要存目前畫面上的數字
     var previousNumber :Double     //要存的運算之前畫面上的數字
-    var performingMath :Bool //要記錄目前是不是在運算過程中
+    var performingMath :Bool        //要記錄目前是不是在運算過程中
+    var labelUpdate :Bool          //判斷是否需要更改label
     
     enum OperationType{
         case add
@@ -27,17 +28,28 @@ class Calculator {
         previousNumber = 0
         performingMath = false
         operation = .none
+        labelUpdate = false
     }
     func clear() {
         numberOnScreen = 0
         previousNumber = 0
         performingMath = false
         operation = .none
+        labelUpdate = false
+    }
+    func getLabelUpdate() -> Bool{
+        return labelUpdate
+    }
+    func setLabelUpdate(_ set: Bool){
+        labelUpdate = set
     }
     func setNumberOnSceen(_ text: String) {
         numberOnScreen = Double(text) ?? 0
     }
-    func counting(_ tag: Int)  {
+    func enterOperation(_ tag: Int)  {
+        if !labelUpdate{
+            counting()
+        }
         performingMath = true
         previousNumber = numberOnScreen
         switch tag {
@@ -53,23 +65,26 @@ class Calculator {
             operation = .none
         }
     }
-    func answer() -> String{
-        var temp :Double = numberOnScreen
+    func counting(){
         if performingMath == true{
             switch operation {
             case .add:
-                temp = previousNumber+numberOnScreen
+                numberOnScreen = previousNumber+numberOnScreen
             case .subtract:
-                temp = previousNumber-numberOnScreen
+                numberOnScreen = previousNumber-numberOnScreen
             case .divide:
-                temp = previousNumber/numberOnScreen
+                numberOnScreen = previousNumber/numberOnScreen
             case .multiply:
-                temp = previousNumber*numberOnScreen
+                numberOnScreen = previousNumber*numberOnScreen
             default:
-                temp = 0
+                numberOnScreen = 0
             }
             performingMath = false
         }
+    }
+    func answer() -> String{
+        counting()
+        let temp :Double = numberOnScreen
         
         if !isDouble(temp){
             return "\(Int(temp))"

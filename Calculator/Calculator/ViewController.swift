@@ -14,20 +14,28 @@ class ViewController: UIViewController {
     }
     
     var calculator:Calculator = Calculator()
-    var labelUpdate = false
     
     @IBOutlet weak var label: UILabel!
     @IBOutlet weak var buttomOfC: UIButton!
+    @IBOutlet var buttomOfOperator: [UIButton]!
+    
+    func setLabelColor(){
+        for buttom in buttomOfOperator {
+            buttom.backgroundColor = UIColor.systemOrange
+            buttom.setTitleColor(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), for: .normal)
+        }
+    }
     
     @IBAction func numbers(_ sender: UIButton) {
         let inputNumber = sender.tag-1
         
         if label.text != nil{
-            if label.text == "0" || labelUpdate{
-                if inputNumber != 0 || labelUpdate{
+            if label.text == "0" || calculator.getLabelUpdate(){
+                if inputNumber != 0 || calculator.getLabelUpdate(){
                     label.text = "\(inputNumber)"
                     buttomOfC.setTitle("C", for: .normal)
-                    labelUpdate = false
+                    calculator.setLabelUpdate(false)
+                    setLabelColor()
                 }
             }
             else{
@@ -57,16 +65,22 @@ class ViewController: UIViewController {
         label.text = "0"
         buttomOfC.setTitle("AC", for: .normal)
         calculator.clear()
-        
+        calculator.setLabelUpdate(false)
+        setLabelColor()
     }
     
+    
+   
+    
     @IBAction func operation(_ sender: UIButton) {
-        calculator.counting(sender.tag)
-        labelUpdate = true
+        setLabelColor()
+        buttomOfOperator[sender.tag-1].backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        buttomOfOperator[sender.tag-1].setTitleColor(UIColor.systemOrange, for: .normal)
+        calculator.enterOperation(sender.tag)
+        calculator.setLabelUpdate(true)
     }
     @IBAction func answer(_ sender: UIButton) {
         label.text = calculator.answer()
-        calculator.setNumberOnSceen(label.text!)
     }
     
     override func viewDidLoad() {

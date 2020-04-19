@@ -58,7 +58,7 @@
                                                 <rect key="frame" x="315" y="0.0" width="99" height="89"/>
                                                 <color key="backgroundColor" systemColor="systemOrangeColor" red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
-                                                <state key="normal" title="/">
+                                                <state key="normal" title="÷">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                                 <connections>
@@ -264,7 +264,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="84" id="1u6-En-jsh"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="70"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="60"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -287,6 +287,10 @@
                     <connections>
                         <outlet property="buttomOfC" destination="RZz-KV-pWG" id="XjI-fC-fzR"/>
                         <outlet property="label" destination="J2h-gZ-Pqi" id="42H-SA-ORL"/>
+                        <outletCollection property="buttomOfOperator" destination="TC8-4p-p7H" collectionClass="NSMutableArray" id="hRo-ad-gIo"/>
+                        <outletCollection property="buttomOfOperator" destination="cW6-qt-l8L" collectionClass="NSMutableArray" id="iWu-m4-bkM"/>
+                        <outletCollection property="buttomOfOperator" destination="g3d-aO-vIX" collectionClass="NSMutableArray" id="cx2-lk-y19"/>
+                        <outletCollection property="buttomOfOperator" destination="98H-y5-mJU" collectionClass="NSMutableArray" id="TEy-7b-VKb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
