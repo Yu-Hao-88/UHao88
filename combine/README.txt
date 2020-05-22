@@ -1,0 +1,2 @@
+請執行 ConcentrationDemo 中的 project 檔
+此檔才是作業所要求的APP，另外兩個是用來reference的
